@@ -19,7 +19,8 @@ package main
 import (
 	"errors"
 	"fmt"
-
+	"encoding/json"
+	
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -44,6 +45,14 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	}
 	err:= stub.PutState("hello_world",[]byte(args[0]))
 	if err !=nil {
+		return nil,err
+	}
+	var refnumber int
+	refnumber=289907
+	 jsonAsBytes, _ := json.Marshal(refnumber)
+	err = stub.PutState("refnumber",jsonAsBytes)
+	if err !=nil {
+		fmt.Println("error creating")
 		return nil,err
 	}
 
