@@ -150,7 +150,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 
 		var contract contract
-		json.Unmarshal(valAsbytes, &contract)
+		json.Marshal(valAsbytes)
 		//asBytes, _ := json.Marshal(allContracts)
 
   //  if err != nil {
