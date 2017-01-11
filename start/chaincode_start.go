@@ -20,14 +20,15 @@ import (
 	"errors"
 	"fmt"
 	"encoding/json"
-	
+   "time"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
 }
-
+const TRAVEL_CONTRACT   = "Paris"
+const FEEDBACK_CONTRACT = "Feedback"
 // ============================================================================================================================
 // Main
 // ============================================================================================================================
@@ -37,7 +38,20 @@ func main() {
 		fmt.Printf("Error starting Simple chaincode: %s", err)
 	}
 }
+type contract struct{
+	Id			string   `json:"ID"`
+		BusinessId  string   `json:"BusinessId"`
+		BusinessName string   `json:"BusinessName"`
+		Title		string   `json:"Title"`
+		Description string   `json:"Description"`
+		Conditions  []string `json:"Conditions"`
+		Icon        string 	 `json:"Icon"`
+		StartDate   time.Time   `json:"StartDate"`
+		EndDate		time.Time   `json:"EndDate"`
+		Method	    string   `json:"Method"`
+		DiscountRate float64  `json:"DiscountRate"`
 
+}
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	if len(args) != 1 {
@@ -49,12 +63,36 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	}
 	var refnumber int
 	refnumber=289907
+
 	 jsonAsBytes, _ := json.Marshal(refnumber)
 	err = stub.PutState("refnumber",jsonAsBytes)
 	if err !=nil {
 		fmt.Println("error creating")
 		return nil,err
 	}
+
+	var double contract
+  	double.Id = TRAVEL_CONTRACT
+		double.BusinessId  = "T5940872"
+		double.BusinessName = "Open Travel"
+		double.Title = "Paris for Less"
+		double.Description = "All Paris travel activities are half the stated point price"
+		double.Conditions = append(double.Conditions, "Half off dining and travel activities in Paris")
+		double.Conditions = append(double.Conditions, "Valid from May 11, 2016")
+		double.Icon = ""
+		double.Method = "travelContract"
+
+		startDate, _  := time.Parse(time.RFC822, "11 May 16 12:00 UTC")
+		double.StartDate = startDate
+		endDate, _  := time.Parse(time.RFC822, "31 Dec 60 11:59 UTC")
+		double.EndDate = endDate
+
+		jsonAsBytes, _ = json.Marshal(double)
+			err = stub.PutState(TRAVEL_CONTRACT, jsonAsBytes)
+			if err != nil {
+				fmt.Println("Error creating double contract")
+				return nil, err
+			}
 
 
 	return nil, nil
