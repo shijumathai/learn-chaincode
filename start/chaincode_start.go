@@ -192,7 +192,7 @@ func (t *SimpleChaincode) addSmartContract(stub shim.ChaincodeStubInterface, arg
 	}
 
 
-	smartContract.Id = args[1]
+	smartContract.Id = args[0]
 	smartContract.BusinessId  = "T5940872"
 	smartContract.BusinessName = "Open Travel"
 	smartContract.Title = args[2]
