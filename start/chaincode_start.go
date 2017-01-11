@@ -138,12 +138,16 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
     name = args[0]
     valAsbytes, err := stub.GetState(name)
+		var contract contract
+
     if err != nil {
         jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
         return nil, errors.New(jsonResp)
     }
+	json.Unmarshal(valAsbytes,&contract)
 
-    return valAsbytes, nil
+	//	asBytes, _ := json.Marshal(allContracts)
+	return valAsbytes, nil
 }
 
 // Query is our entry point for queries
