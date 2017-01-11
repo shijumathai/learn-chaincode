@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"encoding/json"
    "time"
+	 "strconv"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -106,11 +107,16 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Init(stub, "init", args)
 	}	else if function == "write" {
 		return t.write(stub,args)
+	}	else if function == "addSmartContract" {											//create a transaction
+		return t.addSmartContract(stub, args)
 	}
-	fmt.Println("invoke did not find func: " + function)					//error
+		fmt.Println("invoke did not find func: " + function)					//error
 
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
+
+
+
 
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface,args []string)([]byte,error){
 var name, value string
@@ -128,6 +134,8 @@ if err!=nil {
 }
 return nil,nil
 }
+
+
 func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var name, jsonResp string
     var err error
@@ -165,4 +173,64 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 	fmt.Println("query did not find func: " + function)						//error
 
 	return nil, errors.New("Received unknown function query: " + function)
+}
+func (t *SimpleChaincode) addSmartContract(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+
+	// Create new smart contract based on user input
+	var smartContract contract
+
+	discountRate, err := strconv.ParseFloat(args[4], 64)
+	if err != nil {
+		smartContract.Title= "Invalid Contract"
+	}else{
+		smartContract.DiscountRate = discountRate
+	}
+
+
+	smartContract.Id = args[0]
+	smartContract.BusinessId  = "T5940872"
+	smartContract.BusinessName = "Open Travel"
+	smartContract.Title = args[1]
+	smartContract.Description = ""
+	smartContract.Conditions = append(smartContract.Conditions, args[2])
+	smartContract.Conditions = append(smartContract.Conditions, args[3])
+	smartContract.Icon = ""
+	smartContract.Method = "travelContract"
+
+
+	jsonAsBytes, _ := json.Marshal(smartContract)
+	err = stub.PutState(smartContract.Id, jsonAsBytes)
+	if err != nil {
+		fmt.Println("Error adding new smart contract")
+		return nil, err
+	}
+
+	contractIdsAsBytes, _ := stub.GetState("contractIds")
+	var contractIds []string
+	json.Unmarshal(contractIdsAsBytes, &contractIds)
+
+
+	var contractIdFound bool
+	contractIdFound = false;
+	for i := range contractIds{
+		if (contractIds[i] == smartContract.Id)  {
+			contractIdFound = true;
+		}
+	}
+
+	if (!contractIdFound) {
+		contractIds = append(contractIds, smartContract.Id);
+	}
+
+
+	jsonAsBytes, _ = json.Marshal(contractIds)
+	err = stub.PutState("contractIds", jsonAsBytes)
+	if err != nil {
+		fmt.Println("Error storing contract Ids on blockchain")
+		return nil, err
+	}
+
+	return nil, nil
+
 }
