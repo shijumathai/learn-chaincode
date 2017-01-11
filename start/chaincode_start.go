@@ -137,26 +137,24 @@ return nil,nil
 
 
 func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-    var name, jsonResp string
-    var err error
-
+    var name, jsonResp string		//var err error
     if len(args) != 1 {
         return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
     }
 
     name = args[0]
     valAsbytes, err := stub.GetState(name)
-		var contractIds []string
+//var contractIds []string
 
 
-		var contract contract
+//:		var contract contract
 		json.Marshal(valAsbytes)
 		//asBytes, _ := json.Marshal(allContracts)
 
-  //  if err != nil {
-    //    jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
-    //    return nil, errors.New(jsonResp)
-  //  }
+   if err != nil {
+    jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
+        return nil, errors.New(jsonResp)
+   }
 //json.Unmarshal(valAsbytes,&contract)
 	//	asBytes, _ := json.Marshal(allContracts)
 //	return valAsbytes, nil
